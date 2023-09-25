@@ -6,6 +6,7 @@
 
 package org.cysecurity.cspf.jvl.controller;
 
+import java.sql.PreparedStatement;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -48,8 +49,9 @@ public class LoginValidator extends HttpServlet {
                     if(con!=null && !con.isClosed())
                                {
                                    ResultSet rs=null;
-                                   Statement stmt = con.createStatement();  
-                                   rs=stmt.executeQuery("select * from users where username='"+user+"' and password='"+pass+"'");
+                                   PreparedStatement stmt = con.prepareStatement("select * from users where username='"+user+"' and password=?");  
+                                   stmt.setString(1, pass);
+                                   rs=stmt.executeQuery();
                                    if(rs != null && rs.next()){
                                    HttpSession session=request.getSession();
                                    session.setAttribute("isLoggedIn", "1");
