@@ -1,6 +1,6 @@
  <%@ include file="/header.jsp" %>
  <%@page import="java.sql.Connection"%>
-<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.SQLException"%>
 
 <%@page import="java.sql.ResultSetMetaData"%>
@@ -16,29 +16,32 @@ if(session.getAttribute("isLoggedIn")!=null)
    String id=request.getParameter("id");
    if(id!=null && !id.equals(""))
    {
-        Statement stmt = con.createStatement();
-             ResultSet rs =null;
-             rs=stmt.executeQuery("select * from users where id="+id);
-              if(rs != null && rs.next())
-              {
-                out.print("UserName : "+rs.getString("username")+"<br>"); 
-                out.print("Email : "+rs.getString("email")+"<br>"); 
-                out.print("About : "+rs.getString("about")+"<br>"); 
-                 
-                //Getting Card Details:
-                ResultSet rs1=stmt.executeQuery("select * from cards where id="+id);
-                 if(rs1 != null && rs1.next())
-                {
-                   out.print("<br/>-------------------<br/>Card Details:<br/>-------------------<br/>");
-                   out.print("Card Number: "+rs1.getString("cardno")+"<br/>");
-                   out.print("CVV: "+rs1.getString("cvv")+"<br/>");
-                   out.print("Expiry Date: "+rs1.getString("expirydate")+"<br/>");
-                }
-                 else
-                 {
-                     out.print("<br/>No Card Details Found: <a href='changeCardDetails.jsp'>Add Card</a><br/>");
-                 }
-              }
+        PreparedStatement pstmt = con.prepareStatement("select * from users where id=?");
+        pstmt.setString(1, id);
+        ResultSet rs =null;
+        rs=pstmt.executeQuery();
+        if(rs != null && rs.next())
+        {
+          out.print("UserName : "+rs.getString("username")+"<br>"); 
+          out.print("Email : "+rs.getString("email")+"<br>"); 
+          out.print("About : "+rs.getString("about")+"<br>"); 
+           
+          //Getting Card Details:
+          PreparedStatement pstmt1 = con.prepareStatement("select * from cards where id=?");
+          pstmt1.setString(1, id);
+          ResultSet rs1=pstmt1.executeQuery();
+          if(rs1 != null && rs1.next())
+          {
+             out.print("<br/>-------------------<br/>Card Details:<br/>-------------------<br/>");
+             out.print("Card Number: "+rs1.getString("cardno")+"<br/>");
+             out.print("CVV: "+rs1.getString("cvv")+"<br/>");
+             out.print("Expiry Date: "+rs1.getString("expirydate")+"<br/>");
+          }
+          else
+          {
+              out.print("<br/>No Card Details Found: <a href='changeCardDetails.jsp'>Add Card</a><br/>");
+          }
+        }
    }
    else
    {
